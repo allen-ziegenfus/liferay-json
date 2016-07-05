@@ -1,0 +1,32 @@
+{
+  "name": "liferay-json",
+  "version": "1.0.0",
+  "description": "Utility library for invoking Liferay JSON services ",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/allen-ziegenfus/liferay-json.git"
+  },
+  "keywords": [
+    "liferay",
+    "json-ws"
+  ],
+  "author": "Allen Ziegenfus <allen.ziegenfus@liferay.com> (https://www.liferay.com/web/allen.ziegenfus/blog)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/allen-ziegenfus/liferay-json/issues"
+  },
+  "homepage": "https://github.com/allen-ziegenfus/liferay-json#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3"
+  },
+  "dependencies": {
+    "fs": "0.0.2",
+    "request": "^2.72.0",
+    "winston": "^2.2.0"
+  }
+}

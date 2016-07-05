@@ -1,0 +1,6 @@
+{
+    "server": "https://dummy.liferay.com",
+    "user": "dummy@liferay.com",
+    "base64auth": "dummy==",
+    "buildversion:": "6120"
+}

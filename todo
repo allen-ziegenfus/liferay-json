@@ -1,0 +1,4 @@
+TODO: secure password storage
+TODO: read http://blog.modulus.io/node.js-tutorial-how-to-use-request-module
+ // deal with info: {"exception":"com.liferay.portlet.journal.NoSuchArticleException: No JournalArticle exists with the key {groupId=67510365, articleId=69690948, status=-1}"}
+        //i

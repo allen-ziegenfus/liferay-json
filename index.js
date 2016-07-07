@@ -194,6 +194,7 @@ module.exports = {
             logger.debug("viewArticleContent found article content: " + jsonresponse);
             if (!jsonresponse.templateId) {
                 logger.debug("Parsing static web content");
+                logger.info("Writing article (static content) file: ", article);
                 parseWebContentArticleLanguageContent(jsonresponse.content, article.filename, languageid, cb);
             }
             // otherwise we need to render the template. we do this by calling up the preview url

@@ -130,6 +130,10 @@ module.exports = {
             body: body,
             headers: { "Authorization": "Basic " + config.base64auth }
         };
+
+        if (config.base64auth) {
+            postrequest.headers = { "Authorization": "Basic " + config.base64auth };
+        }
         logger.debug(invoke_path);
         logger.debug("POST Request: ", postrequest);
 

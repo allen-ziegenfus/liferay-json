@@ -127,8 +127,7 @@ module.exports = {
         var postrequest = {
             json: true,
             url: config.server + invoke_path,
-            body: body,
-            headers: { "Authorization": "Basic " + config.base64auth }
+            body: body
         };
 
         if (config.base64auth) {

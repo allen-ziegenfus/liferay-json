@@ -14,6 +14,7 @@ fs.access(logdir, fs.F_OK, (err) => {
 function formatDate(d) {
     if (typeof d === 'number') d = new Date(d);
     if (!(d instanceof Date)) return d;
+
     function pad(n) { return n < 10 ? '0' + n : n; }
     return ("[" + pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds()) + "]");
 }
@@ -21,25 +22,25 @@ function formatDate(d) {
 var logger = new winston.Logger({
     level: 'debug',
     transports: [
-        new (winston.transports.Console)({
+        new(winston.transports.Console)({
             level: "info",
-            timestamp: function () {
+            timestamp: function() {
                 return formatDate(Date.now());
             },
 
-            formatter: function (options) {
+            formatter: function(options) {
                 // Return string will be passed to logger.
                 return options.timestamp() + ' ' + options.level.toUpperCase() + ' ' + (undefined !== options.message ? options.message : '') +
                     (options.meta && Object.keys(options.meta).length ? ' ' + JSON.stringify(options.meta) : '');
             }
         }),
-        new (winston.transports.File)({
+        new(winston.transports.File)({
             name: 'debug-file',
             filename: 'logs/debug.log',
             level: 'debug',
             json: false
         }),
-        new (winston.transports.File)({
+        new(winston.transports.File)({
             name: 'silly-file',
             filename: 'logs/trace.log',
             level: 'silly',
@@ -49,15 +50,15 @@ var logger = new winston.Logger({
 });
 
 /**
-    * parse Web Content Article content and write to file(s), depending on what locales are available
-    * @param {string} content - web content 
-    * @param {string} filename - base filename 
-    */
+ * parse Web Content Article content and write to file(s), depending on what locales are available
+ * @param {string} content - web content 
+ * @param {string} filename - base filename 
+ */
 function parseWebContentArticleContent(content, filename) {
-    xml2js.parseString(content, function (err, xmljsresult) {
+    xml2js.parseString(content, function(err, xmljsresult) {
         logger.debug(xmljsresult);
 
-        var errorWritingFile = function (err) {
+        var errorWritingFile = function(err) {
             if (err) logger.error("error writing file", err);
         }
         if (xmljsresult.root && xmljsresult.root["static-content"]) {
@@ -70,8 +71,7 @@ function parseWebContentArticleContent(content, filename) {
                 fs.writeFile(contentobj.$["language-id"] + "_" + filename,
                     contentobj._, errorWritingFile);
             }
-        }
-        else if (xmljsresult.root && xmljsresult.root["dynamic-element"]) {
+        } else if (xmljsresult.root && xmljsresult.root["dynamic-element"]) {
             throw "Cannot handle dynamic elements";
             /*//handleDynamicElement(xmljsresult.root, 1);
             var lego = {};
@@ -86,14 +86,14 @@ function parseWebContentArticleContent(content, filename) {
     });
 }
 /**
-    * parse Web Content Article content and write to file(s), depending on what locales are available
-    * @param {string} content - web content 
-    * @param {string} filename - base filename 
-    * @param {string} locale - language 
-    * @param {function} callback
-    */
+ * parse Web Content Article content and write to file(s), depending on what locales are available
+ * @param {string} content - web content 
+ * @param {string} filename - base filename 
+ * @param {string} locale - language 
+ * @param {function} callback
+ */
 function parseWebContentArticleLanguageContent(content, filename, locale, callback) {
-    xml2js.parseString(content, function (err, xmljsresult) {
+    xml2js.parseString(content, function(err, xmljsresult) {
         logger.debug(xmljsresult);
 
         if (xmljsresult.root && xmljsresult.root["static-content"]) {
@@ -103,15 +103,22 @@ function parseWebContentArticleLanguageContent(content, filename, locale, callba
                 logger.debug("my content: " + contentobj._);
                 logger.debug("my attrs", contentobj.$);
                 if (contentobj.$["language-id"] === locale) {
-                  
-                    fs.writeFile(filename,contentobj._, callback );
-        
+
+                    fs.writeFile(filename, contentobj._, callback);
+
                     return;
                 }
             }
         }
         throw "Could not find locale: " + locale;
     });
+}
+
+function getInvokeEndpoint(config) {
+    if (config && config.buildversion && config.buildversion < 6200) {
+        return (config.server.indexOf("https") === 0) ? "/api/secure/jsonws/invoke" : "/api/jsonws/invoke";
+    }
+    return "/api/jsonws/invoke";
 }
 
 module.exports = {
@@ -121,9 +128,9 @@ module.exports = {
      * @param {string} body - post body 
      * @param {function} callback - callback when post completes.
      */
-    invoke_liferay: function (config, body, callback) {
+    invoke_liferay: function(config, body, callback) {
 
-        var invoke_path = (config.server.indexOf("https") === 0) ? "/api/secure/jsonws/invoke" : "/api/jsonws/invoke";
+        var invoke_path = getInvokeEndpoint(config);
         var postrequest = {
             json: true,
             url: config.server + invoke_path,
@@ -136,7 +143,7 @@ module.exports = {
         logger.debug(invoke_path);
         logger.debug("POST Request: ", postrequest);
 
-        request.post(postrequest, function (err, httpResponse, body) {
+        request.post(postrequest, function(err, httpResponse, body) {
 
             logger.silly("httpResponse: ", httpResponse);
             logger.debug("body: " + body);
@@ -151,8 +158,7 @@ module.exports = {
                     body: body
                 };
                 throw errorobj;
-            }
-            else {
+            } else {
                 if (body && body.exception) {
                     logger.error("An exception occurred: " + body.exception);
                     throw body.exception;
@@ -167,7 +173,7 @@ module.exports = {
      * @param {{groupId: number, articleId: number}} article config 
      * @param {function} callback - callback when post completes.
      */
-    getArticle: function (config, article, cb) {
+    getArticle: function(config, article, cb) {
         var cmd = {
             "/journalarticle/get-article": {
                 "groupId": article.groupId,
@@ -176,7 +182,7 @@ module.exports = {
         };
 
         this.invoke_liferay(config, cmd,
-            function (jsonresponse) {
+            function(jsonresponse) {
                 logger.debug("getArticle body found: " + jsonresponse.content);
                 cb(jsonresponse);
             });
@@ -188,9 +194,9 @@ module.exports = {
      * @param {string} language id
      * @param {function} callback - callback when post completes.
      */
-    viewArticleContent: function (config, article, languageid, cb) {
+    viewArticleContent: function(config, article, languageid, cb) {
         logger.debug("viewArticleContent called for ", article);
-        this.getArticle(config, article, function (jsonresponse) {
+        this.getArticle(config, article, function(jsonresponse) {
 
             // if there is no templateId then we just have regular web content, we can get the content
             // from the article info
@@ -221,7 +227,7 @@ module.exports = {
                     headers: { "Authorization": "Basic " + config.base64auth }
                 };
                 logger.debug("viewArticleContent request: ", getrequest);
-                request.get(getrequest, function (err, httpResponse, body) {
+                request.get(getrequest, function(err, httpResponse, body) {
                     //  logger.silly("httpResponse: ", httpResponse);
                     //  logger.debug("body: " + body);
 
@@ -234,8 +240,7 @@ module.exports = {
                             body: body
                         };
                         throw errorobj;
-                    }
-                    else {
+                    } else {
                         var startBody = body.indexOf("<body>");
                         var endBody = body.indexOf("</body>");
 
@@ -254,12 +259,12 @@ module.exports = {
      * @param {{server: string, base64auth: string}} config - config object with server name and base 64 authentication . 
      * @param {{groupId: number, articleId: number, locales: [{locale: string, filename: string}], defaultLocale: string}} article config 
      */
-    updateStaticArticleContent: function (config, article) {
+    updateStaticArticleContent: function(config, article) {
         // need to get version info first...
         logger.info("Updating article: ", article);
         var staticContent = [];
         var allLocales = [];
-        article.locales.forEach(function (locale) {
+        article.locales.forEach(function(locale) {
             allLocales.push(locale.locale);
             var articleFile = fs.readFileSync(locale.filename).toString();
             staticContent.push({
@@ -274,7 +279,8 @@ module.exports = {
         var obj = {
             root: {
                 $: {
-                    "available-locales": availableLocales, "default-locale": article.defaultLocale
+                    "available-locales": availableLocales,
+                    "default-locale": article.defaultLocale
                 },
                 "static-content": staticContent
             }
@@ -300,10 +306,8 @@ module.exports = {
             }
         };
         this.invoke_liferay(config, cmd,
-            function (jsonresponse) {
+            function(jsonresponse) {
                 logger.debug("body: " + jsonresponse.content);
             });
     },
 };
-
-

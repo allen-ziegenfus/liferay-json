@@ -20,7 +20,7 @@ function formatDate(d) {
 }
 
 var logger = new winston.Logger({
-    level: 'debug',
+    level: 'info',
     transports: [
         new(winston.transports.Console)({
             level: "info",

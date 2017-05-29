@@ -34,18 +34,12 @@ var logger = new winston.Logger({
                     (options.meta && Object.keys(options.meta).length ? ' ' + JSON.stringify(options.meta) : '');
             }
         }),
-        new(winston.transports.File)({
-            name: 'debug-file',
-            filename: 'logs/debug.log',
-            level: 'debug',
-            json: false
-        }),
-        new(winston.transports.File)({
-            name: 'silly-file',
-            filename: 'logs/trace.log',
-            level: 'silly',
-            json: false
-        })
+        /* new(winston.transports.File)({
+             name: 'debug-file',
+             filename: 'logs/debug.log',
+             level: 'debug',
+             json: false
+         }),*/
     ]
 });
 
